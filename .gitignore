@@ -1,0 +1,25 @@
+# Игнорируемые файлы
+
+## .NET / WPF
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## NuGet
+packages/
+*.nupkg
+
+## Сборки
+publish/
+*.exe
+*.dll
+*.pdb
+
+## Временные и служебные
+*.log
+Thumbs.db
+desktop.ini
