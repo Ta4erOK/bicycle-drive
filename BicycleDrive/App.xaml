@@ -1,0 +1,24 @@
+<Application x:Class="BicycleDrive.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+        <Style TargetType="Expander">
+            <Setter Property="FontFamily" Value="Arial"/>
+        </Style>
+    </Application.Resources>
+</Application>
