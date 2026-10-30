@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using BicycleDrive.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 
 namespace BicycleDrive
 {
@@ -16,6 +18,15 @@ namespace BicycleDrive
         private readonly BicycleDriveContext _context = new BicycleDriveContext();
         private readonly Product _product;
         private readonly bool _isNew;
+
+        /// <summary>Файл, выбранный пользователем в диалоге (ещё не скопирован в Images).</summary>
+        private FileInfo _selectedImage;
+
+        /// <summary>Текущее относительное имя файла изображения (то, что лежит в БД).</summary>
+        private string _imageName = ImageStorage.Placeholder;
+
+        /// <summary>Пользователь нажал «Удалить изображение» — при сохранении ставим заглушку.</summary>
+        private bool _imageRemoved;
 
         public ProductEditWindow(int? productId = null)
         {
@@ -34,7 +45,7 @@ namespace BicycleDrive
 
                 DiscountBox.Text = "0";
                 QuantityBox.Text = "0";
-                ImageBox.Text = "";
+                UpdateImagePreview();
             }
             else
             {
@@ -72,7 +83,12 @@ namespace BicycleDrive
             PriceBox.Text = product.Price.ToString("N2", CultureInfo.GetCultureInfo("ru-RU"));
             QuantityBox.Text = product.Quantity.ToString();
             DiscountBox.Text = product.Discount.ToString("0.##", CultureInfo.GetCultureInfo("ru-RU"));
-            ImageBox.Text = product.ImagePath ?? "";
+
+            // В БД лежит относительное имя файла — картинку строим через ImageStorage.
+            _imageName = string.IsNullOrWhiteSpace(product.ImagePath)
+                ? ImageStorage.Placeholder
+                : product.ImagePath;
+            UpdateImagePreview();
 
             CategoryBox.SelectedItem = CategoryBox.Items.Cast<Category>()
                 .FirstOrDefault(c => c.Id == product.CategoryId);
@@ -84,6 +100,111 @@ namespace BicycleDrive
                 .FirstOrDefault(u => u.Id == product.UnitId);
         }
 
+        /// <summary>
+        /// Показывает текущее изображение товара (то, что записано в БД).
+        /// В БД хранится только имя файла, поэтому путь собирает ImageStorage.
+        /// </summary>
+        private void UpdateImagePreview()
+        {
+            PreviewImage.Source = ImageStorage.GetImageWithoutCaching(_imageName);
+
+            bool isPlaceholder = string.Equals(_imageName, ImageStorage.Placeholder,
+                StringComparison.OrdinalIgnoreCase);
+            CurrentImageText.Text = "Текущий файл: " + _imageName
+                + (isPlaceholder ? " (заглушка)" : "");
+        }
+
+        /// <summary>
+        /// Показывает выбранный файл на форме сразу, ДО сохранения в БД.
+        /// _selectedImage имеет тип FileInfo — то есть это реальный файл на диске,
+        /// который ещё не скопирован в папку Images.
+        /// </summary>
+        private void ChangePhotoVisualOnly(FileInfo selectedImage)
+        {
+            _selectedImage = selectedImage;
+
+            if (selectedImage == null)
+            {
+                PreviewImage.Source = ImageStorage.GetImageWithoutCaching(ImageStorage.Placeholder);
+                CurrentImageText.Text = "Будет использована заглушка picture.png";
+                return;
+            }
+
+            PreviewImage.Source = ImageStorage.GetImageFromFile(selectedImage.FullName);
+            CurrentImageText.Text = "Выбран файл: " + selectedImage.Name
+                + " (скопируется в папку Images при сохранении)";
+        }
+
+        private void ChooseImageClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Выбор изображения товара",
+                Filter = "Изображения (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif"
+                       + "|Все файлы (*.*)|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog(this) != true)
+            {
+                return;
+            }
+
+            _imageRemoved = false;
+            ChangePhotoVisualOnly(new FileInfo(dialog.FileName));
+        }
+
+        private void RemoveImageClick(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult answer = MessageBox.Show(this,
+                "Убрать изображение товара? Будет подставлена заглушка picture.png, "
+                + "а текущий файл удалён после сохранения.", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (answer != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            _imageRemoved = true;
+            ChangePhotoVisualOnly(null);
+        }
+
+        /// <summary>
+        /// Удаляет файл изображения, если на него больше не ссылается ни один товар.
+        /// Вызывается после сохранения/удаления товара — чтобы в папке Images
+        /// не оставалось «мусорных» файлов.
+        /// </summary>
+        private void DeleteImageIfUnused(string imageName, int exceptProductId)
+        {
+            if (string.IsNullOrWhiteSpace(imageName))
+            {
+                return;
+            }
+
+            if (string.Equals(Path.GetFileName(imageName), ImageStorage.Placeholder,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            bool usedByAnotherProduct = _context.Products
+                .Any(p => p.ImagePath == imageName && p.Id != exceptProductId);
+            if (usedByAnotherProduct)
+            {
+                return;
+            }
+
+            string error;
+            if (!ImageStorage.DeleteImage(imageName, out error) && !string.IsNullOrEmpty(error))
+            {
+                // товар уже сохранён, поэтому это только предупреждение
+                MessageBox.Show(this, "Изменения сохранены, но файл изображения удалить не удалось.\n"
+                    + error, "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         /// <summary>Разбор неотрицательного числа (принимает и точку, и запятую).</summary>
         private static bool TryParseNonNegative(string text, out decimal value)
         {
@@ -93,8 +214,18 @@ namespace BicycleDrive
                 return false;
             }
 
-            string prepared = text.Trim().Replace(" ", "").Replace("₽", "");
-            if (prepared.Contains(",") && prepared.Contains("."))
+            // убираем ЛЮБЫЕ пробельные символы (в т.ч. неразрывный пробел U+00A0,
+            // которым ru-RU разделяет тысячи) и знак рубля
+            var digits = new List<char>();
+            foreach (char symbol in text.Trim())
+            {
+                if (!char.IsWhiteSpace(symbol) && symbol != '₽' && symbol != '\u00A0')
+                {
+                    digits.Add(symbol);
+                }
+            }
+
+            string prepared = new string(digits.ToArray());            if (prepared.Contains(",") && prepared.Contains("."))
             {
                 prepared = prepared.Replace(".", "");
             }
@@ -181,10 +312,28 @@ namespace BicycleDrive
                 return;
             }
 
-            string image = (ImageBox.Text ?? "").Trim();
-            if (image.Length == 0)
+            // ---- изображение ----
+            // previousImage — имя файла, которое уже записано в БД (или заглушка).
+            // Если пользователь выбрал новый файл — копируем его в папку Images
+            // и записываем в БД новое относительное имя.
+            string previousImage = _imageName;
+            string image = previousImage;
+
+            if (_selectedImage != null)
             {
-                image = "picture.png";
+                string imageError;
+                string savedName = ImageStorage.SaveImage(_selectedImage, out imageError);
+                if (savedName == null)
+                {
+                    Error(imageError);
+                    return;
+                }
+
+                image = savedName;
+            }
+            else if (_imageRemoved)
+            {
+                image = ImageStorage.Placeholder;
             }
 
             try
@@ -209,6 +358,14 @@ namespace BicycleDrive
                 target.ImagePath = image;
 
                 _context.SaveChanges();
+
+                // Старый файл больше не нужен — удаляем его с диска,
+                // если на него не ссылается другой товар.
+                if (!string.Equals(previousImage, image, StringComparison.OrdinalIgnoreCase))
+                {
+                    DeleteImageIfUnused(previousImage, target.Id);
+                }
+
                 DialogResult = true;
             }
             catch (Exception ex)
@@ -242,8 +399,16 @@ namespace BicycleDrive
 
             try
             {
+                // запоминаем имя файла до удаления записи из БД
+                string imageToDelete = _product.ImagePath;
+                int productId = _product.Id;
+
                 _context.Products.Remove(_product);
                 _context.SaveChanges();
+
+                // товара в БД больше нет — его файл изображения тоже не нужен
+                DeleteImageIfUnused(imageToDelete, productId);
+
                 DialogResult = true;
             }
             catch (Exception ex)

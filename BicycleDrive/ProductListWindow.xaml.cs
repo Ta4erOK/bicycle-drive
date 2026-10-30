@@ -179,6 +179,31 @@ namespace BicycleDrive
                 "По остатку на складе"
             };
             SortBox.SelectedIndex = 0;
+
+            UpdatePositionsFooter();
+        }
+
+        /// <summary>
+        /// Подпись в футере: сколько позиций всего и сколько осталось после фильтрации.
+        /// </summary>
+        private void UpdatePositionsFooter()
+        {
+            if (PositionsText == null)
+            {
+                return;
+            }
+
+            int total = _cards.Count;
+            int shown = _view == null ? total : _view.Cast<object>().Count();
+
+            if (shown == total)
+            {
+                PositionsText.Text = "Всего позиций: " + total;
+            }
+            else
+            {
+                PositionsText.Text = "Показано позиций: " + shown + " из " + total;
+            }
         }
 
         private bool FilterCard(object item)
@@ -246,16 +271,19 @@ namespace BicycleDrive
         private void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
             _view?.Refresh();
+            UpdatePositionsFooter();
         }
 
         private void FilterChanged(object sender, SelectionChangedEventArgs e)
         {
             _view?.Refresh();
+            UpdatePositionsFooter();
         }
 
         private void SortChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplySort();
+            UpdatePositionsFooter();
         }
 
         private void ResetClick(object sender, RoutedEventArgs e)
@@ -276,6 +304,7 @@ namespace BicycleDrive
             }
 
             _view?.Refresh();
+            UpdatePositionsFooter();
         }
 
         private void LogoutClick(object sender, RoutedEventArgs e)

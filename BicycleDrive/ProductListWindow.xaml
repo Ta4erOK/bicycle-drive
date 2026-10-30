@@ -13,6 +13,7 @@
             <RowDefinition Height="66"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Шапка окна: логотип, заголовок, пользователь, выход -->
@@ -96,5 +97,18 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
+        <!-- Футер: сколько позиций в списке -->
+        <Border Grid.Row="3" Background="#F2EFFB"
+                BorderBrush="#D5CCF0" BorderThickness="0,1,0,0" Padding="16,8">
+            <Grid>
+                <TextBlock x:Name="PositionsText" Text="Всего позиций: 0"
+                           FontSize="12.5" Foreground="#4B0082"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="ООО «ВелосипедДрайв» · актуальные остатки на складе"
+                           FontSize="11.5" Foreground="#8A80B8"
+                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

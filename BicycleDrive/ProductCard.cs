@@ -14,9 +14,6 @@ namespace BicycleDrive
     /// </summary>
     public class ProductCard
     {
-        private static readonly Dictionary<string, ImageSource> ImageCache =
-            new Dictionary<string, ImageSource>();
-
         private static readonly SolidColorBrush BrushText = Frozen("#1A1A2E");
         private static readonly SolidColorBrush BrushMuted = Frozen("#6B6B7B");
         private static readonly SolidColorBrush BrushWhite = Frozen("#FFFFFF");
@@ -32,7 +29,9 @@ namespace BicycleDrive
         public ProductCard(Product product)
         {
             Product = product;
-            Photo = LoadImage(product.ImagePath);
+            // В БД хранится относительное имя файла («1.jpg») — путь собирает ImageStorage.
+            // Кэш не используется: после замены картинки список должен показать новую.
+            Photo = ImageStorage.GetImageWithoutCaching(product.ImagePath);
 
             bool hasDiscount = product.Discount > 0m;
             bool isBigDiscount = product.Discount > 15m;
@@ -147,46 +146,5 @@ namespace BicycleDrive
             return brush;
         }
 
-        private static ImageSource LoadImage(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                fileName = "picture.png";
-            }
-
-            if (ImageCache.TryGetValue(fileName, out ImageSource cached))
-            {
-                return cached;
-            }
-
-            string imagesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
-            string path = Path.Combine(imagesDir, fileName);
-            if (!File.Exists(path))
-            {
-                path = Path.Combine(imagesDir, "picture.png");
-            }
-
-            ImageSource source = null;
-            try
-            {
-                if (File.Exists(path))
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.UriSource = new Uri(path, UriKind.Absolute);
-                    bitmap.EndInit();
-                    bitmap.Freeze();
-                    source = bitmap;
-                }
-            }
-            catch
-            {
-                source = null;
-            }
-
-            ImageCache[fileName] = source;
-            return source;
-        }
     }
 }
