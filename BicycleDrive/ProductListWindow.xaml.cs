@@ -51,6 +51,21 @@ namespace BicycleDrive
             }
         }
 
+        /// <summary>Добавление, редактирование и удаление товаров — только администратор.</summary>
+        private bool IsAdmin
+        {
+            get
+            {
+                if (_isGuest || _user?.Role == null)
+                {
+                    return false;
+                }
+
+                return string.Equals(_user.Role.Name, "Администратор",
+                    StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
         private void SetupHeader()
         {
             if (_isGuest)
@@ -63,6 +78,54 @@ namespace BicycleDrive
             }
 
             FilterPanel.Visibility = CanManage ? Visibility.Visible : Visibility.Collapsed;
+
+            // заказы видят менеджер и администратор, CRUD товаров — только администратор
+            OrdersButton.Visibility = CanManage ? Visibility.Visible : Visibility.Collapsed;
+            AddProductButton.Visibility = IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void AddProductClick(object sender, RoutedEventArgs e)
+        {
+            if (!IsAdmin)
+            {
+                return;
+            }
+
+            var window = new ProductEditWindow(null) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadProducts();
+            }
+        }
+
+        private void CardClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!IsAdmin)
+            {
+                return;
+            }
+
+            if (!(sender is FrameworkElement element) || !(element.DataContext is ProductCard card))
+            {
+                return;
+            }
+
+            var window = new ProductEditWindow(card.Product.Id) { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                LoadProducts();
+            }
+        }
+
+        private void OrdersClick(object sender, RoutedEventArgs e)
+        {
+            if (!CanManage)
+            {
+                return;
+            }
+
+            var window = new OrdersWindow(_user) { Owner = this };
+            window.ShowDialog();
         }
 
         private void LoadProducts()

@@ -1,0 +1,77 @@
+<Window x:Class="BicycleDrive.OrdersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Заказы — ВелосипедДрайв"
+        Width="1080" Height="700"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFFFFF"
+        FontFamily="Arial">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="66"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Border Grid.Row="0" Background="#6A5ACD">
+            <Grid Margin="16,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="/Assets/icon.png" Width="42" Height="42"/>
+                    <StackPanel VerticalAlignment="Center" Margin="14,0,0,0">
+                        <TextBlock Text="ВелосипедДрайв" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="Заказы" Foreground="#E4DFF7" FontSize="12"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock x:Name="UserText" Foreground="White" FontSize="13"
+                               VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Button x:Name="BackButton" Content="Назад к товарам" Click="BackClick"
+                            Background="#4B0082" Foreground="White" BorderThickness="0"
+                            FontSize="13" Padding="16,7" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Панель действий (только администратор) -->
+        <Border Grid.Row="1" x:Name="ActionPanel" Background="#F2EFFB"
+                BorderBrush="#D5CCF0" BorderThickness="0,0,0,1" Padding="16,10">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="AddButton" Content="Добавить заказ" Click="AddClick"
+                        Background="#4B0082" Foreground="White" BorderThickness="0"
+                        FontSize="12.5" Padding="16,7" Margin="0,0,10,0" Cursor="Hand"/>
+                <Button x:Name="EditButton" Content="Изменить" Click="EditClick"
+                        Background="#FFFFFF" Foreground="#4B0082" BorderBrush="#6A5ACD"
+                        BorderThickness="1.2" FontSize="12.5" Padding="16,7"
+                        Margin="0,0,10,0" Cursor="Hand"/>
+                <Button x:Name="DeleteButton" Content="Удалить" Click="DeleteClick"
+                        Background="#C62828" Foreground="White" BorderThickness="0"
+                        FontSize="12.5" Padding="16,7" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Список заказов -->
+        <ListView Grid.Row="2" x:Name="OrdersList" Margin="14,10,14,10" FontSize="12.5"
+                  BorderBrush="#D5D5E4" MouseDoubleClick="OrdersListDoubleClick">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Номер" Width="80" DisplayMemberBinding="{Binding Number}"/>
+                    <GridViewColumn Header="Дата заказа" Width="110" DisplayMemberBinding="{Binding OrderDateText}"/>
+                    <GridViewColumn Header="Клиент" Width="240" DisplayMemberBinding="{Binding CustomerName}"/>
+                    <GridViewColumn Header="Пункт выдачи" Width="300" DisplayMemberBinding="{Binding PickupAddress}"/>
+                    <GridViewColumn Header="Статус" Width="110" DisplayMemberBinding="{Binding StatusName}"/>
+                    <GridViewColumn Header="Позиций" Width="80" DisplayMemberBinding="{Binding ItemsCount}"/>
+                    <GridViewColumn Header="Сумма, ₽" Width="110" DisplayMemberBinding="{Binding TotalText}"/>
+                    <GridViewColumn Header="Код" Width="70" DisplayMemberBinding="{Binding Code}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Border Grid.Row="3" Background="#F2EFFB" Padding="16,8">
+            <TextBlock x:Name="StatusText" FontSize="12" Foreground="#4B0082"/>
+        </Border>
+    </Grid>
+</Window>

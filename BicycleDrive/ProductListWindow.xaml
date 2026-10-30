@@ -31,6 +31,9 @@
                             VerticalAlignment="Center">
                     <TextBlock x:Name="UserText" Foreground="White" FontSize="13"
                                VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Button x:Name="OrdersButton" Content="Заказы" Click="OrdersClick"
+                            Background="#FFFFFF" Foreground="#4B0082" BorderThickness="0"
+                            FontSize="13" Padding="16,7" Margin="0,0,10,0" Cursor="Hand"/>
                     <Button x:Name="LogoutButton" Content="Выход" Click="LogoutClick"
                             Background="#4B0082" Foreground="White" BorderThickness="0"
                             FontSize="13" Padding="16,7" Cursor="Hand"/>
@@ -43,13 +46,19 @@
                 BorderBrush="#D5CCF0" BorderThickness="0,0,0,1" Padding="16,10">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="210"/>
                     <ColumnDefinition Width="210"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                <Button Grid.Column="0" x:Name="AddProductButton" Content="Добавить товар"
+                        Click="AddProductClick" Background="#4B0082" Foreground="White"
+                        BorderThickness="0" FontSize="12.5" Padding="16,7"
+                        VerticalAlignment="Bottom" Margin="0,0,16,0" Cursor="Hand"/>
+
+                <StackPanel Grid.Column="1" Margin="0,0,16,0">
                     <TextBlock Text="Поиск по всем текстовым полям" FontSize="11.5"
                                Foreground="#4B0082" Margin="0,0,0,3"/>
                     <TextBox x:Name="SearchBox" Height="30" FontSize="13" Padding="7,4"
@@ -58,19 +67,19 @@
                              ToolTip="Несколько слов через пробел — ищутся одновременно"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                <StackPanel Grid.Column="2" Margin="0,0,16,0">
                     <TextBlock Text="Категория" FontSize="11.5" Foreground="#4B0082" Margin="0,0,0,3"/>
                     <ComboBox x:Name="CategoryBox" Height="30" FontSize="13"
                               SelectionChanged="FilterChanged"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Margin="0,0,16,0">
+                <StackPanel Grid.Column="3" Margin="0,0,16,0">
                     <TextBlock Text="Сортировка" FontSize="11.5" Foreground="#4B0082" Margin="0,0,0,3"/>
                     <ComboBox x:Name="SortBox" Height="30" FontSize="13"
                               SelectionChanged="SortChanged"/>
                 </StackPanel>
 
-                <Button Grid.Column="3" Content="Сбросить" Click="ResetClick"
+                <Button Grid.Column="4" Content="Сбросить" Click="ResetClick"
                         Background="#FFFFFF" Foreground="#4B0082" BorderBrush="#6A5ACD"
                         BorderThickness="1.2" FontSize="12.5" Padding="14,7"
                         VerticalAlignment="Bottom" Cursor="Hand"/>
@@ -82,7 +91,7 @@
             <ItemsControl x:Name="ProductsList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:SingleProductView/>
+                        <local:SingleProductView MouseLeftButtonUp="CardClick"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

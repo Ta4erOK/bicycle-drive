@@ -1,0 +1,147 @@
+<Window x:Class="BicycleDrive.OrderEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Заказ — ВелосипедДрайв"
+        Width="820" Height="760"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FFFFFF"
+        FontFamily="Arial">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="64"/>
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Border Grid.Row="0" Background="#6A5ACD">
+            <Grid Margin="16,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="/Assets/icon.png" Width="34" Height="34"/>
+                    <TextBlock x:Name="HeaderText" Text="Заказ" Foreground="White"
+                               FontSize="18" FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="12,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,10">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Номер заказа *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="NumberBox" FontSize="13"
+                             Padding="6,4" Margin="0,0,20,10"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Код *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBox Grid.Row="0" Grid.Column="3" x:Name="CodeBox" FontSize="13"
+                             Padding="6,4" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Клиент *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="UserBox" FontSize="13"
+                              Padding="6,4" DisplayMemberPath="Display" Margin="0,0,20,10"
+                              Grid.ColumnSpan="1"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Статус *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <ComboBox Grid.Row="1" Grid.Column="3" x:Name="StatusBox" FontSize="13"
+                              Padding="6,4" DisplayMemberPath="Name" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Пункт выдачи *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="PickupBox"
+                              FontSize="13" Padding="6,4" DisplayMemberPath="Address" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Дата заказа *" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <DatePicker Grid.Row="3" Grid.Column="1" x:Name="OrderDateBox" FontSize="13"
+                                Margin="0,0,20,10"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Дата доставки" FontSize="13"
+                               Foreground="#4B0082" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                    <DatePicker Grid.Row="3" Grid.Column="3" x:Name="DeliveryDateBox" FontSize="13"
+                                Margin="0,0,0,10"/>
+                </Grid>
+
+                <!-- Состав заказа -->
+                <Border BorderBrush="#D5CCF0" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Состав заказа" FontSize="14" FontWeight="Bold"
+                                   Foreground="#4B0082" Margin="0,0,0,8"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox Grid.Column="0" x:Name="ProductBox" FontSize="12.5" Padding="6,4"
+                                      DisplayMemberPath="Display" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" x:Name="ItemQuantityBox" FontSize="13" Padding="6,4"
+                                     Margin="0,0,10,0" ToolTip="Количество, целое положительное число"/>
+                            <Button Grid.Column="2" x:Name="AddItemButton" Content="Добавить в заказ" Click="AddItemClick"
+                                    Background="#4B0082" Foreground="White" BorderThickness="0"
+                                    FontSize="12" Padding="14,6" Cursor="Hand"/>
+                        </Grid>
+
+                        <ListView x:Name="ItemsList" Height="180" Margin="0,10,0,8" FontSize="12"
+                                  BorderBrush="#D5D5E4">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Товар" Width="380" DisplayMemberBinding="{Binding Display}"/>
+                                    <GridViewColumn Header="Кол-во" Width="70" DisplayMemberBinding="{Binding Quantity}"/>
+                                    <GridViewColumn Header="Цена, ₽" Width="110" DisplayMemberBinding="{Binding PriceText}"/>
+                                    <GridViewColumn Header="Сумма, ₽" Width="110" DisplayMemberBinding="{Binding SumText}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <Button x:Name="RemoveItemButton" Content="Удалить позицию из заказа" Click="RemoveItemClick"
+                                HorizontalAlignment="Left" Background="#FFFFFF" Foreground="#C62828"
+                                BorderBrush="#C62828" BorderThickness="1.2" FontSize="12"
+                                Padding="14,6" Cursor="Hand"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопки -->
+        <Border Grid.Row="2" Background="#F2EFFB" BorderBrush="#D5CCF0" BorderThickness="0,1,0,0">
+            <Grid Margin="20,0">
+                <Button x:Name="DeleteButton" Content="Удалить" Click="DeleteClick"
+                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Background="#C62828" Foreground="White" BorderThickness="0"
+                        FontSize="13" Padding="18,8" Cursor="Hand"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="CancelButton" Content="Отмена" Click="CancelClick" IsCancel="True"
+                            Background="#FFFFFF" Foreground="#4B0082" BorderBrush="#6A5ACD"
+                            BorderThickness="1.2" FontSize="13" Padding="18,8"
+                            Margin="0,0,10,0" Cursor="Hand"/>
+                    <Button x:Name="SaveButton" Content="Сохранить" Click="SaveClick"
+                            Background="#4B0082" Foreground="White" BorderThickness="0"
+                            FontSize="13" Padding="20,8" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
