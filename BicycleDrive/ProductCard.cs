@@ -83,6 +83,12 @@ namespace BicycleDrive
                 ? "Скидка: " + product.Discount.ToString("0.##", CultureInfo.GetCultureInfo("ru-RU")) + " %"
                 : "Без скидки";
 
+            // отдельная зона карточки: крупное значение скидки
+            DiscountValueText = hasDiscount
+                ? product.Discount.ToString("0.##", CultureInfo.GetCultureInfo("ru-RU")) + " %"
+                : "—";
+            DiscountHintText = hasDiscount ? "цена снижена" : "без скидки";
+
             StockText = outOfStock
                 ? "Нет на складе"
                 : "На складе: " + product.Quantity + " " + UnitName;
@@ -115,6 +121,8 @@ namespace BicycleDrive
         public string FinalPriceText { get; }
         public string OldPriceText { get; }
         public string DiscountText { get; }
+        public string DiscountValueText { get; }
+        public string DiscountHintText { get; }
         public string StockText { get; }
         public string SearchText { get; }
 

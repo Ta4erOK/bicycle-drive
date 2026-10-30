@@ -7,7 +7,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="132"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="190"/>
             </Grid.ColumnDefinitions>
 
             <!-- ЗОНА 1: фото товара -->
@@ -17,40 +17,67 @@
                 <Image Source="{Binding Photo}" Stretch="Uniform" Margin="4"/>
             </Border>
 
-            <!-- ЗОНА 2: характеристики -->
-            <StackPanel Grid.Column="1" Margin="14,0,16,0" VerticalAlignment="Top">
-                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"
-                           Foreground="{Binding RowForeground}" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding CategoryLine}" FontSize="11.5"
-                           Foreground="{Binding MutedForeground}" Margin="0,3,0,0"/>
-                <TextBlock Text="{Binding Description}" FontSize="12"
-                           Foreground="{Binding RowForeground}" TextWrapping="Wrap"
-                           MaxHeight="54" TextTrimming="CharacterEllipsis" Margin="0,6,0,0"/>
-                <TextBlock Text="{Binding ManufacturerLine}" FontSize="12"
-                           Foreground="{Binding RowForeground}" Margin="0,6,0,0"/>
-                <TextBlock Text="{Binding SupplierLine}" FontSize="12"
-                           Foreground="{Binding RowForeground}" Margin="0,2,0,0"/>
-                <TextBlock Text="{Binding UnitLine}" FontSize="12"
-                           Foreground="{Binding MutedForeground}" Margin="0,2,0,0"/>
-                <TextBlock Text="{Binding ArticleLine}" FontSize="11"
-                           Foreground="{Binding MutedForeground}" Margin="0,5,0,0"/>
-            </StackPanel>
+            <!-- ЗОНА 2: характеристики, цена и остаток -->
+            <Grid Grid.Column="1" Margin="14,0,16,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- ЗОНА 3: цена, скидка, остаток -->
-            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding OldPriceText}" TextDecorations="Strikethrough"
-                           FontSize="13" Foreground="{Binding OldPriceBrush}"
-                           HorizontalAlignment="Right"
-                           Visibility="{Binding OldPriceVisibility}"/>
-                <TextBlock Text="{Binding FinalPriceText}" FontSize="22" FontWeight="Bold"
-                           Foreground="{Binding FinalPriceBrush}" HorizontalAlignment="Right"/>
-                <TextBlock Text="{Binding DiscountText}" FontSize="12"
-                           Foreground="{Binding MutedForeground}"
-                           HorizontalAlignment="Right" Margin="0,3,0,0"/>
-                <TextBlock Text="{Binding StockText}" FontSize="12"
-                           Foreground="{Binding MutedForeground}"
-                           HorizontalAlignment="Right" Margin="0,2,0,0"/>
-            </StackPanel>
+                <StackPanel Grid.Row="0" VerticalAlignment="Top">
+                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"
+                               Foreground="{Binding RowForeground}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding CategoryLine}" FontSize="11.5"
+                               Foreground="{Binding MutedForeground}" Margin="0,3,0,0"/>
+                    <TextBlock Text="{Binding Description}" FontSize="12"
+                               Foreground="{Binding RowForeground}" TextWrapping="Wrap"
+                               MaxHeight="40" TextTrimming="CharacterEllipsis" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding ManufacturerLine}" FontSize="12"
+                               Foreground="{Binding RowForeground}" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding SupplierLine}" FontSize="12"
+                               Foreground="{Binding RowForeground}" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding UnitLine}" FontSize="12"
+                               Foreground="{Binding MutedForeground}" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding ArticleLine}" FontSize="11"
+                               Foreground="{Binding MutedForeground}" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Grid Grid.Row="1" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding OldPriceText}"
+                               TextDecorations="Strikethrough" FontSize="13"
+                               Foreground="{Binding OldPriceBrush}" VerticalAlignment="Bottom"
+                               Margin="0,0,10,3" Visibility="{Binding OldPriceVisibility}"/>
+
+                    <TextBlock Grid.Column="1" Text="{Binding FinalPriceText}" FontSize="22"
+                               FontWeight="Bold" Foreground="{Binding FinalPriceBrush}"
+                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="2" Text="{Binding StockText}" FontSize="12"
+                               Foreground="{Binding MutedForeground}" VerticalAlignment="Bottom"
+                               HorizontalAlignment="Right" Margin="10,0,0,3"/>
+                </Grid>
+            </Grid>
+
+            <!-- ЗОНА 3: действующая скидка -->
+            <Border Grid.Column="2" BorderBrush="#B9B2D9" BorderThickness="1,0,0,0"
+                    Padding="14,0,0,0">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Скидка" FontSize="12" HorizontalAlignment="Center"
+                               Foreground="{Binding MutedForeground}"/>
+                    <TextBlock Text="{Binding DiscountValueText}" FontSize="30" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"
+                               Foreground="{Binding FinalPriceBrush}"/>
+                    <TextBlock Text="{Binding DiscountHintText}" FontSize="11"
+                               HorizontalAlignment="Center" Foreground="{Binding MutedForeground}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Border>
 </UserControl>
